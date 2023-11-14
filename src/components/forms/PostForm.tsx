@@ -19,7 +19,10 @@ import { PostValidation } from "@/lib/validation";
 import { Models } from "appwrite";
 import { useUserContext } from "@/context/AuthContext";
 import { useToast } from "../ui/use-toast";
-import { useCreatePost } from "@/lib/react-query/queriesAndMutations";
+import {
+  useCreatePost,
+  useUpdatePost,
+} from "@/lib/react-query/queriesAndMutations";
 
 type PostFormProps = {
   post?: Models.Document;
@@ -31,6 +34,9 @@ const PostForm = ({ post, action }: PostFormProps) => {
   const { user } = useUserContext();
   const { mutateAsync: createPost, isPending: isLoadingCreate } =
     useCreatePost();
+
+  const { mutateAsync: updatePost, isPending: isLoadingUpdate } =
+    useUpdatePost();
 
   const navigate = useNavigate();
 
@@ -45,6 +51,21 @@ const PostForm = ({ post, action }: PostFormProps) => {
   });
 
   async function onSubmit(values: z.infer<typeof PostValidation>) {
+    if (post && action === "Update") {
+      const updatedPost = await updatePost({
+        ...values,
+        postId: post.$id,
+        imageId: post?.imageId,
+        imageUrl: post?.imageUrl,
+      });
+
+      if (!updatedPost) {
+        toast({ title: "Please try again." });
+      }
+
+      return navigate(`/posts/${post.$id}`);
+    }
+
     const newPost = await createPost({
       ...values,
       userId: user.id,
@@ -139,9 +160,12 @@ const PostForm = ({ post, action }: PostFormProps) => {
           </Button>
           <Button
             type="submit"
+            disabled={isLoadingCreate || isLoadingUpdate}
             className="shad-button_primary whitespace-nowrap"
           >
-            Submit
+            {isLoadingCreate || isLoadingUpdate
+              ? "Loading..."
+              : `${action} Post`}
           </Button>
         </div>
       </form>
