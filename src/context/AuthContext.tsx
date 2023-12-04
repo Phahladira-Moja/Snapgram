@@ -3,7 +3,7 @@ import { IUser } from "@/types";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-export const INITIAL_USER = {
+const INITIAL_USER = {
   id: "",
   name: "",
   username: "",
@@ -24,8 +24,8 @@ const INITIAL_STATE = {
 type IContextType = {
   user: IUser;
   isLoading: boolean;
-  setUser: React.Dispatch<React.SetStateAction<IUser>>;
   isAuthenticated: boolean;
+  setUser: React.Dispatch<React.SetStateAction<IUser>>;
   setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
   checkAuthUser: () => Promise<boolean>;
 };
@@ -81,9 +81,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const value = {
     user,
-    setUser,
     isLoading,
     isAuthenticated,
+    setUser,
     setIsAuthenticated,
     checkAuthUser,
   };
